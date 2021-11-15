@@ -1,7 +1,11 @@
+// Imports for discord Js
+const fs = require('fs');
+const { Client, Collection, Intents } = require('discord.js');
+const { token } = require('./config.json');
+
 // Set express server
 const express = require('express');
 const { port } = require('./config.json');
-
 const app = express();
 
 app.get('/', (request, response) => {
@@ -10,15 +14,10 @@ app.get('/', (request, response) => {
 
 app.listen(port, () => console.log(`App listening at http://localhost:${port}`));
 
-// Imports for discord Js
-const fs = require('fs');
-const { Client, Collection, Intents } = require('discord.js');
-const { token } = require('./config.json');
-
 
 // Create a new client instance
 //const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS] });
 client.commands = new Collection();
 
 
@@ -46,7 +45,6 @@ for (const file of eventFiles) {
 
 
 // Interaction Handler
-
  client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
 
@@ -58,9 +56,9 @@ for (const file of eventFiles) {
 		await command.execute(interaction);
 	} catch (error) {
 		console.error(error);
-		await interaction.reply({content: 'There was an error while executing this command! Please check your input and try again.'});
+		await interaction.reply({content: 'There was an error while executing this command! Please check  input and try again.'});
 	}
 });
 
-// Login to Discord with your client's token
+// Login to Discord with token
 client.login(token);

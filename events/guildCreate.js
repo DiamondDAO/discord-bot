@@ -1,11 +1,24 @@
-const { mkdir } = require('fs')
+const fs = require('fs');
+const { initGuildData } = require('../getInitData.js')
+
+
 module.exports = {
   name: 'guildCreate',
   once: true,
-  execute(guild) {
-    console.log(`The client joined the guild ${guild}`);
-    mkdir(`./guilds/${guild.id}`, { recursive: true }, (err) => {
-      if (err) throw err;
-      });
+  async execute(guild) {
+    console.log(`The client joined the guild ${guild}`); 
+    const guildData = await initGuildData(guild);
+
+    // Write data to file
+    try {
+      fs.writeFileSync(`./data/${guild.id}.json`, JSON.stringify(guildData));
+      console.log(`Initial data from ${guild.name} written to ./data/${guild.id}.json`);
+    }
+    catch(error) {
+      console.error("Failed to write initial data file")
+    }
+
+
+
   },
 };
