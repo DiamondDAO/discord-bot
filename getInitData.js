@@ -1,23 +1,27 @@
 const fs = require('fs');
-const { token } = require('./config.json')
-const util = require('util')
-const { Collection } = require('discord.js');
+const { Collection } = require('discord.js'); // needed for deepFetchMessages
+const cycle = require('./cycle.js'); // needed for JSON.decycle() (removes circular links for stringify)
 
 // This function should run once whenever the bot joins a new server, to scrape all available data from that server.
 const initGuildData = async (guild) => {
 
   //Discord JS returns Collection objects with circular referances.
   //Need to convert these into a single JSON to be returned
+  //Cycle.js provides JSON.decycle, which allows for This
 
-  // function to simplify objects for JSON strigification
-  const flattenToJSON = (obj) => JSON.parse(JSON.stringify(obj));
+  // Currently doesn't return stickers or attachments
+
 
   // From basic Guild data, Create the data object which will eventually be exported as JSON.
   // To fill data, need to call discordjs methods for each type of thing.
-  let data = flattenToJSON(guild)
+  let data = JSON.decycle(guild);
+
+
+
 
   // Function to get historical messages
-  async function fetchMessages(channel, limit = 10000) {
+  // Note default limit of 10000
+  async function deepFetchMessages(channel, limit = 10000) {
   if (!channel) {
     throw new Error(`Expected channel, got ${typeof channel}.`);
   }
@@ -37,7 +41,6 @@ const initGuildData = async (guild) => {
     if (lastId) {
       options.before = lastId;
     }
-
     let messages = await channel.messages.fetch(options);
 
     if (!messages.last()) {
@@ -53,51 +56,66 @@ const initGuildData = async (guild) => {
 
 
 
+
+
   // Get info on each channel and nest it into the guild data
 
   // data.channels is a list of ID's of channels.
   // For each, fetch the actual data on the channel and add it to the channelsHolder object
-  let channelsHolder = {};
 
 
-  for (channelId in data.channels){
-    const fetchedChannel = await guild.client.channels.fetch(data.channels[channelId]);
-    channelsHolder[data.channels[channelId]] = flattenToJSON(fetchedChannel);
+// ———— Fetch and Fill Channels ————
+  const fetchedChannels = await guild.channels.fetch();
+  // Decycle the fetchedChannels map object and
+  let channels = [];
+  fetchedChannels.forEach(channel => channels.push(JSON.decycle(channel)));
+  data.channels = channels;
 
-    // While each channel is under scrutiny, fetch, flatten, and insert the messages from that channel
-    let flatMessages = {};
 
-    if (fetchedChannel.messages != undefined ){
-       const fetchedMessages = await fetchMessages(fetchedChannel);
-       fetchedMessages.forEach(message => flatMessages[message.id] = flattenToJSON(message));
+
+
+
+//  ———— Fetch and Fill Members ————
+  // This also fills userdata, thanks to JSON.decycle()
+  const fetchedMembers = await guild.members.fetch();
+  let members = Array.from(fetchedMembers, member => JSON.decycle(member));
+  data.members = members;
+
+
+
+
+  // ———— Fetch and Fill Messages ————
+    // Fills mentions, thanks again to JSON.decycle()
+  messages = []; // Array to hold message data
+  for (i in data.channels) {
+    if (data.channels[i].messages != undefined){
+      const fetchedChannel = await guild.channels.fetch(data.channels[i].id);
+      //const fetchedMessages = await fetchedChannel.messages.fetch();
+      // Testing the deep fetch:
+      const fetchedMessages = await deepFetchMessages(fetchedChannel);
+
+
+      fetchedMessages.forEach(fetchedMessage => {
+        // Save decycled message so that it's attributes can be modified
+        let message = JSON.decycle(fetchedMessage);
+        message.reactions = []; // replace the reactions attribute with an empty array to add to
+
+        // Fetch reactions and add each to message.reactions
+        const fetchedReactions = fetchedMessage.reactions.cache;
+        fetchedReactions.forEach(fetchedReaction => message.reactions.push(JSON.decycle(fetchedReaction)));
+
+        // Finally, push this message to the message array
+        messages.push(JSON.decycle(message));
+      });
     };
-    // update the messages property of each channel in the constructed channelsHolder object
-    channelsHolder[data.channels[channelId]].messages = flatMessages;
   };
-
-    // update the channels property of the constructed data object to include full data on each channel
-    data.channels = channelsHolder;
-
+  // add the message attribute to "data" and assign it the array of message data
+  data.messages = messages;
 
 
-  // Get info on each member and nest it into the guild data
-
-  let fetchedMembers = await guild.members.fetch();
-  data.members = flattenToJSON(Object.fromEntries(fetchedMembers));
-
-  for (member in data.members) {
-    data.members[member].user = flattenToJSON(await guild.client.users.fetch(member));
-  }
-
-
-  return data;
-
-
-  // Write data to file
-  //fs.writeFileSync(`./${guild.id}.json`, JSON.stringify(data))
-
-
+  return data; // TODO: Test if this can go without
 }
+
 
 
 module.exports = { initGuildData };
