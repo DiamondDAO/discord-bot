@@ -1,14 +1,16 @@
-// Get message and flatten to play nice with JSON.stringify
-// Find the server and read in server file as object
-// find the channel
-// append message
-// stringify the file back
 
+
+const { Util } = require('discord.js');
 const fs = require('fs');
 
 module.exports = {
 	name: 'messageCreate',
 	async execute(message) {
+
+		const mentions = await Util.flatten(message.mentions)
+		flatMessage = await Util.flatten(message);
+
+
 
 
 		// Function to simplify objects for JSON strigification
@@ -20,7 +22,7 @@ module.exports = {
 		}));
 
 		// Read guildData from file
-		let guildData = JSON.parse(fs.readFileSync(`./data/${message.guildId}.json`));
+		//let guildData = JSON.parse(fs.readFileSync(`./data/${message.guildId}.json`));
 
 		// Get Message Information
 		//guildData.messages.push(message);
@@ -44,7 +46,7 @@ module.exports = {
 		// No need to get message reactions, since this is a new message.
 
 
-		fs.writeFileSync(`./data/${message.guildId}.json`, JSON.stringify(guildData, function replacer(key, value) { return value}));
+		//fs.writeFileSync(`./data/${message.guildId}.json`, JSON.stringify(guildData, function replacer(key, value) { return value}));
 
 
 

@@ -17,7 +17,9 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "flatted": "^3.2.4",
+    "fs-extra": "^10.0.0",
     "gson": "^0.1.5",
+    "json-stream-stringify": "^2.0.4",
     "node-fetch": "^2.6.6"
   },
   "devDependencies": {
