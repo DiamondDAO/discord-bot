@@ -15,21 +15,6 @@ const s3Write = async (path, data) => {
   };
 
   const run = async () => {
-    /*
-    // Create an Amazon S3 bucket.
-    try {
-      const data = await s3Client.send(
-          new CreateBucketCommand({ Bucket: params.Bucket })
-      );
-      console.log(data);
-      console.log("Successfully created a bucket called ", data.Location);
-      return data; // For unit tests.
-    } catch (err) {
-      console.log("Error", err);
-    }
-    */
-
-    // Create an object and upload it to the Amazon S3 bucket.
     try {
       const results = await s3Client.send(new PutObjectCommand(params));
       console.log(

@@ -15,7 +15,5 @@ module.exports = {
 		let path = `guilds/${newMember.guild.id}/members`;
 		writeData(obj, path, 'guildMemberUpdate');
 
-
-
 	},
 };

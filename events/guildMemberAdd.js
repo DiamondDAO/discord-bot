@@ -6,12 +6,12 @@ module.exports = {
 	async execute(member) {
 
 		let flat = Util.flatten(member);
-    let path = `guilds/${member.guildId}/members`;
-		writeData(flat, path);
+    let path = `guilds/${member.guild.id}/members`;
+		writeData(flat, path, '');
 
     flat = Util.flatten(member.user);
     path = `users`;
-		writeData(flat, path);
+		writeData(flat, path, '');
 
 	},
 };

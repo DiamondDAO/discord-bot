@@ -5,7 +5,7 @@ module.exports = {
 	name: 'messageReactionRemoveAll',
 	execute(message) {
 
-		const path = `guilds/${messageReaction.message.guildId}/messages`;
+		const path = `guilds/${messageReaction.message.guildId}/reactions`;
     writeEventToFile(message, 'messageReactionRemoveAll', path);
 
 

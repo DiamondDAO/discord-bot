@@ -20,7 +20,7 @@ module.exports = {
     const fetchedGuildMembers = await guild.members.fetch();
 
     flatGuildData['members'] = Array.from(fetchedGuildMembers.keys());
-    writeData(flatGuildData, guildDir);
+    writeData(flatGuildData, guildDir, '');
 
 
     // Messages and threads are both children of channels, so they need to be fetched within fetchedMembers
@@ -58,17 +58,22 @@ module.exports = {
 
           return collection;
           };
+        const getMessageReactions = async message => {
+          if (message.reactions != undefined){
+            const fetchedReactions = message.reactions.cache;
+            outputCollectionRecords(fetchedReactions, `${guildDir}/reactions`, 'message');
+          }};
 
         const getChannelMessages = async channel => {
-          if (channel.messages != undefined){ // verify that the channel has messages
+          if (channel.messages != undefined){
             const fetchedMessages = await deepMessageFetch(channel);
-            outputCollectionRecords(fetchedMessages, `${guildDir}/messages`);
+            outputCollectionRecords(fetchedMessages, `${guildDir}/messages`, 'id', getMessageReactions);
           }
         };
 
     //Threads
     const getChannelThreads = async channel => {
-      if (channel.threads != undefined){ // verify that the channel has messages
+      if (channel.threads != undefined){
         const fetchedThreads = await channel.threads.fetch();
         if (fetchedThreads.threads != undefined ){
           outputCollectionRecords(fetchedThreads.threads, `${guildDir}/channels`, 'id', getChannelMessages);

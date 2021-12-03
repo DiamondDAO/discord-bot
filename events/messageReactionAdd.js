@@ -13,8 +13,8 @@ module.exports = {
     'user' : Util.flatten(user)};
 
 
-		const path = `guilds/${messageReaction.message.guildId}/messages`;
-		writeData(obj, path, 'messageReactionAdd');
+		const path = `guilds/${messageReaction.message.guildId}/reactions`;
+		writeData(obj, path, '');
 
 
 	},
