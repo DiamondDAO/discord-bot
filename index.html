@@ -5,13 +5,17 @@
 </head>
 <body>
 	<div id="info">
-	Hoi!
+	Under Construction 💎
 </div>
-<a id="login" style="display: none;" href="your-oauth2-URL-here">Identify Yourself</a>
+
+<!--
+Code for Oauth Login (from Discord docs)
+<a id="login" style="display: none;" href="your-oauth2-URL-here">oauth2 login</a>
 <script>
 	window.onload = () => {
 		const fragment = new URLSearchParams(window.location.hash.slice(1));
 		const [accessToken, tokenType] = [fragment.get('access_token'), fragment.get('token_type')];
+
 
 		if (!accessToken) {
 			return document.getElementById('login').style.display = 'block';
@@ -29,6 +33,9 @@
 			})
 			.catch(console.error);
 	};
+
 </script>
+-->
+
 </body>
 </html>

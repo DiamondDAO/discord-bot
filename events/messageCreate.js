@@ -1,57 +1,15 @@
-
-
 const { Util } = require('discord.js');
-const fs = require('fs');
+const { writeData } = require('../toolbox.js');
 
 module.exports = {
 	name: 'messageCreate',
 	async execute(message) {
 
-		const mentions = await Util.flatten(message.mentions)
-		flatMessage = await Util.flatten(message);
+		let flatMessage = Util.flatten(message);
+		flatMessage.mentions = Util.flatten(message.mentions); // capture the message mentions
 
-
-
-
-		// Function to simplify objects for JSON strigification
-		const flattenToJSON = (obj) => JSON.parse(JSON.stringify(obj, function replacer(key,value)
-		{
-			if (value==undefined) return undefined;
-    	//else if (key=="privateProperty2") return undefined;
-    	else return value;
-		}));
-
-		// Read guildData from file
-		//let guildData = JSON.parse(fs.readFileSync(`./data/${message.guildId}.json`));
-
-		// Get Message Information
-		//guildData.messages.push(message);
-		/*guildData.channels[message.channelId][message.id] = flattenToJSON(message);
-
-
-/*		// Get Messsage Sender
-		//console.log(message.author)
-		//console.log(JSON.stringify(message.author), (key, value) => {if (key = banner){return undefined}});
-
-		//guildData.channels[message.channelId][message.id].author = flattenToJSON(message.author);
-		console.log( guildData.channels[message.channelId][message.id].author);
-*/
-
-
-		// Get Message Mentions
-		//guildData.channels[message.channelId][message.id].mentions = flattenToJSON(message.mentions);
-
-
-
-		// No need to get message reactions, since this is a new message.
-
-
-		//fs.writeFileSync(`./data/${message.guildId}.json`, JSON.stringify(guildData, function replacer(key, value) { return value}));
-
-
-
-
-
+		const path = `guilds/${message.guildId}/messages`
+		writeData(flatMessage, path, 'messageCreate');
 
 	},
 };

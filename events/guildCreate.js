@@ -1,6 +1,6 @@
-const fs = require('fs');
-const { initGuildData } = require('../getInitData.js');
-const { Util, BitField } = require('discord.js')
+
+const { Util, Collection } = require('discord.js')
+const { writeData, outputCollectionRecords } = require('../toolbox.js')
 
 
 module.exports = {
@@ -10,75 +10,65 @@ module.exports = {
 
     console.log(`The client joined the guild ${guild}`);
 
-    //// TODO: Only a single member remains after Util.flatten()
-    //const fetchedGuildMembers = await guild.members.fetch();
-    //flatGuildData.members = Util.flatten(fetchedGuildMembers);
+    // Create Guild Directory
 
-    const mkdirs = (entities, path = '.') => {
-      entities.forEach(
-        entity => {
-        if (!fs.existsSync(path + `/${entity}`)){
-          fs.mkdirSync(path + `/${entity}`)
-        }
-        if (!fs.existsSync(path + `/${entity}/events`)){
-          fs.mkdirSync(path + `/${entity}/events`)
-        }});
-    };
-
-    // Function to write data to file named after a given attribute
-    const writeData = async (data, path, uidAttribute = 'id') => {
-        await fs.writeFile(
-          `${path}/${data[uidAttribute]}.json`,
-          JSON.stringify(data, (key, value) => typeof value === 'bigint' ? value.toString() : value),
-          err => err != null ? console.log(err) : err // => null
-        );
-        console.log(`Data written to ${path}/${data[uidAttribute]}.json`);
-      };
-
-    // function to take data from a collection
-    const outputCollectionRecords = (collection, directory, uidAttribute, callback) => {
-      // For each object in the collection, flatten and write it to a JSON in <directory>
-      collection.forEach( item => writeData(Util.flatten(item), directory, uidAttribute));
-      // callback for retrieving data nested within this object
-      if(callback != undefined){
-          collection.forEach(item => callback(item));
-      }
-    };
+    const guildDir = `guilds/${guild.id}`;
 
 
-    const guildDir = `./data/guilds/${guild.id}`;
-    if (!fs.existsSync(guildDir)){
-      fs.mkdirSync(guildDir);
-    }
-
-
-
-    const entities = ['channels', 'members', 'messages', 'threads', 'bans', 'roles', 'emojis'];
-    mkdirs(entities, guildDir);
+    // Output initial Guild file
     let flatGuildData = Util.flatten(guild);
+    const fetchedGuildMembers = await guild.members.fetch();
+
+    flatGuildData['members'] = Array.from(fetchedGuildMembers.keys());
     writeData(flatGuildData, guildDir);
 
 
+    // Messages and threads are both children of channels, so they need to be fetched within fetchedMembers
+    // Function to get historical messages
+      async function deepMessageFetch(channel, limit = 10000) {
+          if (!channel) {
+            throw new Error(`Expected channel, got ${typeof channel}.`);
+          }
+          if (limit <= 100) {
+            return channel.messages.fetch({ limit });
+          }
 
-    // Messages and threads are both children of channels,
-    // Create a function for each that will be used as a callback when gathering channels
+          let collection = new Collection();
+          let lastId = null;
+          let options = {};
+          let remaining = limit;
 
+          while (remaining > 0) {
+            options.limit = remaining > 100 ? 100 : remaining;
+            remaining = remaining > 100 ? remaining - 100 : 0;
 
+            if (lastId) {
+              options.before = lastId;
+            }
 
-    // Messages
-    // Function to output all messages from a channel to /messages
-    // TODO: impliment deepFetchMessages()
-    const getChannelMessages = async channel => {
-      if (channel.messages != undefined){ // verify that the channel has messages
-        const fetchedMessages = await channel.messages.fetch();
-        outputCollectionRecords(fetchedMessages, `${guildDir}/messages`);
-      }
-    };
+            let messages = await channel.messages.fetch(options);
+
+            if (!messages.last()) {
+              break;
+            }
+
+            collection = collection.concat(messages);
+            lastId = messages.last().id;
+          }
+
+          return collection;
+          };
+
+        const getChannelMessages = async channel => {
+          if (channel.messages != undefined){ // verify that the channel has messages
+            const fetchedMessages = await deepMessageFetch(channel);
+            outputCollectionRecords(fetchedMessages, `${guildDir}/messages`);
+          }
+        };
 
     //Threads
     const getChannelThreads = async channel => {
       if (channel.threads != undefined){ // verify that the channel has messages
-        console.log(channel.threads)
         const fetchedThreads = await channel.threads.fetch();
         if (fetchedThreads.threads != undefined ){
           outputCollectionRecords(fetchedThreads.threads, `${guildDir}/channels`, 'id', getChannelMessages);
@@ -103,7 +93,7 @@ module.exports = {
     // members
         const fetchedMembers = await guild.members.fetch();
         outputCollectionRecords(fetchedMembers, `${guildDir}/members`, 'user',
-        member => outputCollectionRecords([member.user], './data/users')
+        member => outputCollectionRecords([member.user], 'users')
       );
 
     // roles
@@ -112,37 +102,7 @@ module.exports = {
         outputCollectionRecords(fetchedRoles, `${guildDir}/roles`);
       };
 
-    // bans
-      if (guild.emojis != undefined){
-        const fetchedBans = await guild.bans.fetch();
-        outputCollectionRecords(fetchedBans, `${guildDir}/bans`);
-      };
-
-
-    // emojis
-      if (guild.emojis != undefined){
-        const fetchedEmojis = await guild.emojis.fetch();
-        outputCollectionRecords(fetchedEmojis, `${guildDir}/emojis`);
-      };
-
-    // stickers
-
-      if (guild.stickers != undefined){
-        const fetchedStickers = await guild.stickers.fetch();
-        outputCollectionRecords(fetchedStickers, `${guildDir}/stickers`);
-      };
-
-    // stages
-    /*
-    Note: this code won't work, because the stageInstanceManager.fetch() function requries a passed ID of a stage channel.
-    To impliment, this should run if a channel is found to be a stage channel when extracting channels.
-    (could easily go with the thread extractor function)
-      if (guild.stageInstances != undefined){
-        const fetchedStageInstances = await guild.stageInstances.fetch();
-        outputCollectionRecords(fetchedStageInstances, `${guildDir}/stageInstances`)
-      };
-
-      */
+    // Future implimentations may include Bans, Roles, Emojis, and ScheduledEvents
 
   },
 };
