@@ -9,7 +9,7 @@ const { s3Client } = require('./s3client.js');
 const s3Write = async (path, data) => {
     // Set the parameters
   const params = {
-    Bucket: process.env.AWS_BUCKET, // The name of the bucket. For example, 'sample_bucket_101'.
+    Bucket: process.env.S3_BUCKET, // The name of the bucket. For example, 'sample_bucket_101'.
     Key: path, // The name of the object. For example, 'sample_upload.txt'.
     Body: data, // The content of the object. For example, 'Hello world!".
   };
