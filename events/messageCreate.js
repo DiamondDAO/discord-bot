@@ -6,10 +6,10 @@ module.exports = {
 	async execute(message) {
 
 		let flatMessage = Util.flatten(message);
-		flatMessage.mentions = Util.flatten(message.mentions); // capture the message mentions
+		flatMessage["mentions"] = Util.flatten(message.mentions); // capture the message mentions
 
 		const path = `guilds/${message.guildId}/messages`
-		writeData(flatMessage, path, 'messageCreate');
+		writeData(flatMessage, path, '');
 
 	},
 };

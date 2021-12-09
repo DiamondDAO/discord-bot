@@ -9,18 +9,6 @@ module.exports = {
 
     let path = `guilds/${guild.id}`;
 
-    members.forEach( (member) => {
-
-      let flat = Util.flatten(member);
-      let path = `guilds/${member.guild.id}/members`;
-  		writeData(flat, path, '');
-
-      flat = Util.flatten(member.user);
-      path = `users`;
-  		writeData(flat, path, '');
-
-    });
-
 		writeEventToFile(guild, 'guildMembersChunk', path);
 
 

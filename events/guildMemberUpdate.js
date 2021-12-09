@@ -5,11 +5,10 @@ module.exports = {
 	name: 'guildMemberUpdate',
 	execute(oldMember, newMember) {
 
-		const obj = {
-			'id':newMember.id,
-			'oldMember': Util.flatten(oldMember),
-			'newMember': Util.flatten(newMember)
-		};
+		let obj = Util.flatten(newMember);
+		obj["oldMember"] = Util.flatten(oldMember);
+		obj["roles"] = newMember.roles.cache;
+		obj["id"] = newMember["user"];
 
 
 		let path = `guilds/${newMember.guild.id}/members`;

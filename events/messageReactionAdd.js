@@ -9,6 +9,7 @@ module.exports = {
     let obj = {
 		'id': 'reaction', //todo: generate ID for reaction
 		'message':messageReaction.message,
+		'emoji':messageReaction._emoji['name'],
     'reaction' : Util.flatten(messageReaction),
     'user' : Util.flatten(user)};
 

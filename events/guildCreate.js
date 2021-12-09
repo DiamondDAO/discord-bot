@@ -25,7 +25,7 @@ module.exports = {
 
     // Messages and threads are both children of channels, so they need to be fetched within fetchedMembers
     // Function to get historical messages
-      async function deepMessageFetch(channel, limit = 10000) {
+      async function deepMessageFetch(channel, limit = 100000000000) {
           if (!channel) {
             throw new Error(`Expected channel, got ${typeof channel}.`);
           }
@@ -61,7 +61,17 @@ module.exports = {
         const getMessageReactions = async message => {
           if (message.reactions != undefined){
             const fetchedReactions = message.reactions.cache;
-            outputCollectionRecords(fetchedReactions, `${guildDir}/reactions`, 'message');
+            fetchedReactions.forEach( async reaction => {
+              let userArray = await reaction['users'].fetch();
+              userArray.forEach(user=>{
+                let obj = Util.flatten(reaction);
+                obj['id'] = 'reaction';
+                obj['fetchedOnBotJoin'] = true;
+                obj['user'] = user.id;
+                obj['reactionEmoji'] = reaction._emoji['name'];
+                writeData(obj, `${guildDir}/reactions`, '', 'message')
+              }) //end usersforeach
+            });//end fetchedReactionsForeach
           }};
 
         const getChannelMessages = async channel => {
@@ -95,19 +105,29 @@ module.exports = {
     outputCollectionRecords(fetchedChannels, `${guildDir}/channels`, 'id', combinedCallback);
 
 
-    // members
-        const fetchedMembers = await guild.members.fetch();
-        outputCollectionRecords(fetchedMembers, `${guildDir}/members`, 'user',
-        member => outputCollectionRecords([member.user], 'users')
-      );
+
+    const fetchedMembers = await guild.members.fetch();
+        //outputCollectionRecords(fetchedMembers, `${guildDir}/members`, 'user',
+        //member => outputCollectionRecords([member.user], 'users'));
+
+    fetchedMembers.forEach( member => {
+      let obj = Util.flatten(member);
+      obj['roles'] = member.roles.cache;
+      outputCollectionRecords([member.user], 'users')
+      writeData(obj, `${guildDir}/members`, '', 'user')
+    });
 
     // roles
       if (guild.roles != undefined){
         const fetchedRoles = await guild.roles.fetch();
-        outputCollectionRecords(fetchedRoles, `${guildDir}/roles`);
+        fetchedRoles.forEach( role => {
+          let obj = Util.flatten(role);
+          obj['members'] = role.members;
+          writeData(obj, `${guildDir}/roles`, '')
+        });
       };
 
-    // Future implimentations may include Bans, Roles, Emojis, and ScheduledEvents
+    // Future implimentations may include Bans, Guild Emojis, and ScheduledEvents
 
   },
 };

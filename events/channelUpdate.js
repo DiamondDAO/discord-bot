@@ -5,11 +5,9 @@ module.exports = {
 	name: 'channelUpdate',
 	execute(oldChannel, newChannel) {
 
-		const obj = {
-			'id':oldChannel.id,
-			'oldChannel': Util.flatten(oldChannel),
-			'newChannel': Util.flatten(newChannel)
-		};
+
+		let obj = Util.flatten(newChannel);
+		obj["oldMember"] = Util.flatten(oldChannel);
 
 		let path = `guilds/${newChannel.guildId}/channels`;
 

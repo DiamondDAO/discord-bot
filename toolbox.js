@@ -44,7 +44,6 @@ const writeData = async (data, path, name, uidAttribute = 'id') => {
 
     // add the timestamp attribute to the data
     const strigifiedData = JSON.stringify(data, (key, value) => typeof value === 'bigint' ? value.toString() : value);
-
     await s3Write(jsonPath, strigifiedData);
 
   };

@@ -5,18 +5,16 @@ module.exports = {
 	name: 'roleUpdate',
 	execute(oldRole, newRole) {
 
-		const obj = {
-			'id':newRole.id,
-			'oldRole': Util.flatten(oldRole),
-			'newRole': Util.flatten(newRole)
-		};
 
+		let oldRoleFilled = Util.flatten(oldRole);
+		oldRoleFilled['members'] = oldRole.members
+
+		let obj = Util.flatten(newRole);
+		obj["oldRole"] = oldRoleFilled;
+		obj["members"] = newRole.members
 
 		let path = `guilds/${newRole.guild.id}/roles`;
 
 		writeData(obj, path, 'roleUpdate');
-
-
-
 	},
 };

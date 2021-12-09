@@ -9,8 +9,11 @@ module.exports = {
     let obj = {
 		'id': 'reaction', //todo: generate ID for reaction
 		'message':messageReaction.message,
+		'emoji':messageReaction.emoji,
     'reaction' : Util.flatten(messageReaction),
-    'user' : Util.flatten(user)};
+    'user' : Util.flatten(user),
+		'deleted' : true
+	};
 
 
 		const path = `guilds/${messageReaction.message.guildId}/reactions`;

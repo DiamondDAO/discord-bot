@@ -6,6 +6,7 @@ module.exports = {
 	async execute(member) {
 
 		let flat = Util.flatten(member);
+		flat['roles'] = member.roles.cache;
     let path = `guilds/${member.guild.id}/members`;
 		writeData(flat, path, '');
 

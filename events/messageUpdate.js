@@ -5,11 +5,8 @@ module.exports = {
 	name: 'messageUpdate',
 	execute(oldMessage, newMessage) {
 
-		const obj = {
-			'id':newMessage.id,
-			'oldMessage': Util.flatten(oldMessage),
-			'newMessage': Util.flatten(newMessage)
-		};
+		let obj = Util.flatten(newMessage);
+		obj["oldMessage"] = Util.flatten(oldMessage);
 
 		let path = `guilds/${newMessage.guildId}/messages`;
 
