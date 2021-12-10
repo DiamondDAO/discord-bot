@@ -7,7 +7,7 @@ module.exports = {
 	name: 'guildUnavailable',
 	execute(guild) {
 
-    let path = `guilds/${guild.guildId}`;
+    let path = `guilds/guildEvents`;
 		writeEventToFile(guild, 'guildUnavailable', path);
 
 

@@ -5,7 +5,7 @@ module.exports = {
 	name: 'guildDelete',
 	execute(guild) {
 
-    let path = `guilds/${guild.id}`;
+    let path = `guilds/guildEvents`;
 		writeEventToFile(guild, 'guildDelete', path);
 
 

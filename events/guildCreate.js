@@ -20,7 +20,7 @@ module.exports = {
     const fetchedGuildMembers = await guild.members.fetch();
 
     flatGuildData['members'] = Array.from(fetchedGuildMembers.keys());
-    writeData(flatGuildData, guildDir, '');
+    writeData(flatGuildData, 'guilds/guildEntities', '');
 
 
     // Messages and threads are both children of channels, so they need to be fetched within fetchedMembers
