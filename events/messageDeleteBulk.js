@@ -12,7 +12,7 @@ module.exports = {
       let flat = Util.flatten(message);
   		flat.mentions = Util.flatten(message.mentions); // capture the message mentions
 
-  		const path = `guilds/${message.guildId}/messages/events`;
+  		const path = `guilds/${message.guildId}/messages`;
   		writeData(flat, path, 'messageDelete');
 
     })}
@@ -20,7 +20,7 @@ module.exports = {
       let flat = Util.flatten(messages);
   		flat.mentions = Util.flatten(messages.mentions); // capture the message mentions
 
-  		const path = `guilds/${messages.guildId}/messages/events`;
+  		const path = `guilds/${messages.guildId}/messages`;
   		writeData(flat, path, 'messageDelete');
 
     }

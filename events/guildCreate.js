@@ -87,9 +87,6 @@ module.exports = {
         const fetchedThreads = await channel.threads.fetch();
         if (fetchedThreads.threads != undefined ){
           outputCollectionRecords(fetchedThreads.threads, `${guildDir}/channels`, 'id', getChannelMessages);
-          // note that this implimentation sends threads to /channels.
-          // This is because threads are treated like channels, and thread messages list thier parent thread under 'channelId'
-          // use the getChannelMessages callback to get messages from the thread as well
         }
 
       }
