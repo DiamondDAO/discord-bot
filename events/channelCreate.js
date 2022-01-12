@@ -7,5 +7,7 @@ module.exports = {
 		let path = `guilds/${channel.guildId}/channels`;
 		writeEventToFile(channel, '', path);
 
+		
+
 	},
 };

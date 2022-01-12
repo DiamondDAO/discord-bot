@@ -59,17 +59,25 @@ module.exports = {
           return collection;
           };
         const getMessageReactions = async message => {
+
           if (message.reactions != undefined){
             const fetchedReactions = message.reactions.cache;
             fetchedReactions.forEach( async reaction => {
               let userArray = await reaction['users'].fetch();
               userArray.forEach(user=>{
+                function generateUID(stringInt1, stringInt2){
+                  let int1 = parseInt(stringInt1);
+                  let int2 = parseInt(stringInt2);
+                  let average = (int1 + int2)/2;
+                  return average;
+                }
                 let obj = Util.flatten(reaction);
-                obj['id'] = 'reaction';
+                let reactionId = generateUID(user.id, message.id);
+                obj['id'] = reactionId;
                 obj['fetchedOnBotJoin'] = true;
                 obj['user'] = user.id;
                 obj['reactionEmoji'] = reaction._emoji['name'];
-                writeData(obj, `${guildDir}/reactions`, '', 'message')
+                writeData(obj, `${guildDir}/reactions`, '')
               }) //end usersforeach
             });//end fetchedReactionsForeach
           }};
@@ -87,9 +95,6 @@ module.exports = {
         const fetchedThreads = await channel.threads.fetch();
         if (fetchedThreads.threads != undefined ){
           outputCollectionRecords(fetchedThreads.threads, `${guildDir}/channels`, 'id', getChannelMessages);
-          // note that this implimentation sends threads to /channels.
-          // This is because threads are treated like channels, and thread messages list thier parent thread under 'channelId'
-          // use the getChannelMessages callback to get messages from the thread as well
         }
 
       }
