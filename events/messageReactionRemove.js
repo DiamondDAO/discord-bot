@@ -19,6 +19,7 @@ module.exports = {
                 obj['fetchedOnBotJoin'] = false;
                 obj['user'] = user.id;
                 obj['reactionEmoji'] = messageReaction._emoji['name'];
+				obj['deleted'] = true;
 
 		const path = `guilds/${messageReaction.message.guildId}/reactions`;
 		writeData(obj, path, 'messageReactionRemove');
