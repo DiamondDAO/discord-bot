@@ -7,9 +7,11 @@ module.exports = {
 	name: 'guildMembersChunk',
 	execute(members, guild) {
 
+	if (Array.isArray(members)){ // only fire if an array of members is added
     let path = `guilds/${guild.id}`;
+	writeEventToFile(guild, 'guildMembersChunk', path);
 
-		writeEventToFile(guild, 'guildMembersChunk', path);
+	}
 
 
 	},

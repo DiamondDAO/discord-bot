@@ -16,14 +16,5 @@ module.exports = {
   		writeData(flat, path, 'messageDelete');
 
     })}
-    else {
-      let flat = Util.flatten(messages);
-  		flat.mentions = Util.flatten(messages.mentions); // capture the message mentions
-
-  		const path = `guilds/${messages.guildId}/messages`;
-  		writeData(flat, path, 'messageDelete');
-
-    }
-
 	},
 };
